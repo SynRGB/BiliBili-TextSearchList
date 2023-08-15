@@ -4,8 +4,8 @@
 // @namespace           https://github.com/Mehver
 // @version             bata
 // @description         (Thanks to ZEP's paid customization) Display Bilibili search results in a list, which is convenient for sorting by each column.
-// @description:zh-CN   (感谢'ZEP'的有偿定制) 用列表的方式展示B站搜索结果，方便按各列排序。
-// @sponsor             ZEP (闲鱼)
+// @description:zh-CN   (感谢闲鱼买家ZEP的有偿定制) 用列表的方式展示B站搜索结果，方便按各列排序。
+// @sponsor             ZEP
 // @author              https://github.com/Mehver
 // @icon
 // @match               http*://search.bilibili.com/*
@@ -76,8 +76,12 @@ function main() {
     table.id = "biliResultsTable";
     let thead = document.createElement('thead');
     let tbody = document.createElement('tbody');
+    //########################################
+    /////////////// 230815.01 ////////////////
     // let header = ["标题", "UP主", "播放数", "弹幕数", "时长", "发布日期"]; // 改需求A
     let header = ["发布日期", "时长", "标题", "播放量", "UP主"];
+    /////////////// 230815.01 ////////////////
+    //########################################
     let trHead = document.createElement('tr');
     header.forEach(text => {
         let th = document.createElement('th');
@@ -96,6 +100,7 @@ function main() {
             let duration = videoCard.querySelector('.bili-video-card__stats__duration')?.textContent.trim();
             let date = videoCard.querySelector('.bili-video-card__info--date')?.textContent.trim().replace('· ', '');
             let link_video = videoCard.querySelectorAll('a')[0].getAttribute('href');
+            // UP主的link在targetDiv1页面有概率玄学报错，应该是异步逻辑的问题，用try之后基本正常
             let link_up;
             try { link_up = videoCard.querySelectorAll('a')[2].getAttribute('href'); } catch (e) {}
 
@@ -111,7 +116,8 @@ function main() {
                 (date !== undefined) &&
                 (link_video !== undefined)
             ) {
-                //// 改需求A
+                //########################################
+                /////////////// 230815.01 ////////////////
                 // [title, up, playCount, danmakuCount, duration, date].forEach(text => {
                 //     let td = document.createElement('td');
                 //     td.textContent = text;
@@ -121,6 +127,7 @@ function main() {
                 // tdTitle.innerHTML = `<a href="${link_video}" target="_blank">${title}</a>`;
                 // let tdUp = tr.querySelector('td:nth-child(2)');
                 // tdUp.innerHTML = `<a href="${link_up}" target="_blank">${up}</a>`;
+                // tbody.appendChild(tr);
                 [date, duration, title, playCount, up].forEach(text => {
                     let td = document.createElement('td');
                     td.textContent = text;
@@ -131,6 +138,8 @@ function main() {
                 let tdUp = tr.querySelector('td:nth-child(5)');
                 tdUp.innerHTML = `<a href="${link_up}" target="_blank">${up}</a>`;
                 tbody.appendChild(tr);
+                /////////////// 230815.01 ////////////////
+                //########################################
             }
         });
         console.log(videoCards);
@@ -175,15 +184,21 @@ function main() {
             "searching": false,
             "info": false,
             "columnDefs": [
-                //// 改需求A
+                //########################################
+                /////////////// 230815.01 ////////////////
                 // { "type": "playcount-sort", "targets": 2 },
                 // { "type": "duration-sort", "targets": 4 },
                 // { "type": "date-sort", "targets": 5 }
                 { "type": "playcount-sort", "targets": 3 },
                 { "type": "duration-sort", "targets": 1 },
                 { "type": "date-sort", "targets": 0 }
+                /////////////// 230815.01 ////////////////
+                //########################################
             ]
         });
+
+        GM_addStyle("table.dataTable.no-footer { border-bottom: 0px none !important; }");
+
     }, 100);
 }
 /////////////// main ////////////////
@@ -223,7 +238,7 @@ function convertDate(date) {
         return parseFloat(date.replace('-', ''))
     }
 }
-/////// DataTable 的排序函数 ////////
+/////// DataTable 的排序算法 ////////
 ///////////////////////////////////
 
 console.log("JS script BiliBili-SearchList (BiliBili-搜索列表) loaded. See more details at https://github.com/SynRGB/BiliBili-SearchList");
