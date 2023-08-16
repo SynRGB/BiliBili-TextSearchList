@@ -3,8 +3,8 @@
 // @name:zh-CN          BiliBili-文字搜索列表
 // @namespace           https://github.com/Mehver
 // @version             bata
-// @description         (Thanks to ZEP's paid customization) Display Bilibili search results in a list, which is convenient for sorting by each column.
-// @description:zh-CN   (感谢闲鱼买家ZEP的有偿定制) 用列表的方式展示B站搜索结果，方便按各列排序。
+// @description         (Thanks to ZEP's paid customization) Display Bilibili search results in a text list, which is convenient for sorting by each column.
+// @description:zh-CN   (感谢闲鱼买家ZEP的有偿定制) 用文字列表的方式展示B站搜索结果，方便按各列排序。
 // @sponsor             ZEP
 // @author              https://github.com/Mehver
 // @icon
