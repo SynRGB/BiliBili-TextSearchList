@@ -1,6 +1,6 @@
 // ==UserScript==
-// @name                BiliBili-SearchList
-// @name:zh-CN          BiliBili-搜索列表
+// @name                BiliBili-TextSearchList
+// @name:zh-CN          BiliBili-文字搜索列表
 // @namespace           https://github.com/Mehver
 // @version             bata
 // @description         (Thanks to ZEP's paid customization) Display Bilibili search results in a list, which is convenient for sorting by each column.
@@ -12,13 +12,27 @@
 // @license             MPL-2.0
 // @license^            Mozilla Public License 2.0
 // @charset		        UTF-8
-// @homepageURL         https://github.com/SynRGB/BiliBili-SearchList
-// @contributionURL     https://github.com/SynRGB/BiliBili-SearchList
+// @homepageURL         https://github.com/SynRGB/BiliBili-TextSearchList
+// @contributionURL     https://github.com/SynRGB/BiliBili-TextSearchList
 // @copyright           Copyright © 2022-PRESENT, Mehver (https://github.com/Mehver)
 // @grant               GM_addStyle
 // @grant               GM_getResourceText
+// @grant               GM_getValue
+// @grant               GM_setValue
+// @grant               GM_registerMenuCommand
 // @resource            DataTablesCSS https://cdn.datatables.net/1.11.3/css/jquery.dataTables.min.css
 // ==/UserScript==
+
+let table_font_size = await GM_getValue('table_font_size', 16);
+
+GM_registerMenuCommand('设置表格字体大小', async () => {
+    let newFontSize = prompt('请输入新的字体大小（单位px）:', table_font_size);
+    if (newFontSize) {
+        table_font_size = newFontSize;
+        await GM_setValue('table_font_size', table_font_size);
+        alert('字体大小已更新！请刷新页面以查看更改。');
+    }
+});
 
 //////////////////////////////////////
 //////////// DataTables //////////////
@@ -76,12 +90,7 @@ function main() {
     table.id = "biliResultsTable";
     let thead = document.createElement('thead');
     let tbody = document.createElement('tbody');
-    //########################################
-    /////////////// 230815.01 ////////////////
-    // let header = ["标题", "UP主", "播放数", "弹幕数", "时长", "发布日期"]; // 改需求A
     let header = ["发布日期", "时长", "标题", "播放量", "UP主"];
-    /////////////// 230815.01 ////////////////
-    //########################################
     let trHead = document.createElement('tr');
     header.forEach(text => {
         let th = document.createElement('th');
@@ -116,18 +125,6 @@ function main() {
                 (date !== undefined) &&
                 (link_video !== undefined)
             ) {
-                //########################################
-                /////////////// 230815.01 ////////////////
-                // [title, up, playCount, danmakuCount, duration, date].forEach(text => {
-                //     let td = document.createElement('td');
-                //     td.textContent = text;
-                //     tr.appendChild(td);
-                // });
-                // let tdTitle = tr.querySelector('td');
-                // tdTitle.innerHTML = `<a href="${link_video}" target="_blank">${title}</a>`;
-                // let tdUp = tr.querySelector('td:nth-child(2)');
-                // tdUp.innerHTML = `<a href="${link_up}" target="_blank">${up}</a>`;
-                // tbody.appendChild(tr);
                 [date, duration, title, playCount, up].forEach(text => {
                     let td = document.createElement('td');
                     td.textContent = text;
@@ -137,12 +134,14 @@ function main() {
                 tdTitle.innerHTML = `<a href="${link_video}" target="_blank">${title}</a>`;
                 let tdUp = tr.querySelector('td:nth-child(5)');
                 tdUp.innerHTML = `<a href="${link_up}" target="_blank">${up}</a>`;
+                // b230815.02 时长加粗
+                tr.querySelector('td:nth-child(2)').style.fontWeight = 'bold';
+                // b230815.02 标题用 `#00AEEC` 颜色
+                tr.querySelector('td:nth-child(3)').style.color = '#00AEEC';
                 tbody.appendChild(tr);
-                /////////////// 230815.01 ////////////////
-                //########################################
             }
         });
-        console.log(videoCards);
+        // console.log(videoCards);
         table.appendChild(thead);
         table.appendChild(tbody);
 
@@ -161,8 +160,8 @@ function main() {
             // 匹配除第一页外的其他 DOM 结构，第一页返回的结果是一次性全部加载的，而其他页是异步加载的
             let targetDiv2_rm = document.querySelector("#i_cecream > div > div:nth-child(2) > div.search-content--gray.search-content > div > div > div.video-list.row");
             targetDiv2_rm.innerHTML = '';
-            let targetDiv2 = document.querySelector("#i_cecream > div > div:nth-child(2) > div.search-content--gray.search-content > div > div > div.flex_center.mt_x50.mb_lg");
-            targetDiv2.parentNode.insertBefore(table, targetDiv2);
+            let targetDiv2_bott = document.querySelector("#i_cecream > div > div:nth-child(2) > div.search-content--gray.search-content > div > div > div.flex_center.mt_x50.mb_lg");
+            targetDiv2_bott.parentNode.insertBefore(table, targetDiv2_bott);
             // 每次翻页时，上一页的表格不会自动被覆盖而是叠加在一起，所以需要手动删除
             let tables = document.querySelectorAll('#biliResultsTable');
             if (tables.length > 1) {
@@ -174,6 +173,7 @@ function main() {
             }
         }
 
+
         // DataTables 的自定义排序算法
         $.fn.dataTable.ext.type.order['duration-sort-pre'] = function (d) {return convertDurationToSeconds(d);};
         $.fn.dataTable.ext.type.order['playcount-sort-pre'] = function (d) {return convertPlayCount(d);};
@@ -184,20 +184,18 @@ function main() {
             "searching": false,
             "info": false,
             "columnDefs": [
-                //########################################
-                /////////////// 230815.01 ////////////////
-                // { "type": "playcount-sort", "targets": 2 },
-                // { "type": "duration-sort", "targets": 4 },
-                // { "type": "date-sort", "targets": 5 }
                 { "type": "playcount-sort", "targets": 3 },
                 { "type": "duration-sort", "targets": 1 },
                 { "type": "date-sort", "targets": 0 }
-                /////////////// 230815.01 ////////////////
-                //########################################
             ]
         });
 
+        // b230815.02 去掉底边横线
         GM_addStyle("table.dataTable.no-footer { border-bottom: 0px none !important; }");
+        // b230815.02 去掉表头横线 (因CSS复杂，所以创建白色色块覆盖)
+        GM_addStyle(".dataTable thead th { border-bottom: 0px none !important; }");
+        // b230815.02 调大字号
+        GM_addStyle(`.dataTable { font-size: ${table_font_size}px !important; }`);
 
     }, 100);
 }
@@ -224,21 +222,27 @@ function convertPlayCount(playCount) {
     }
 }
 function convertDate(date) {
+    const now = new Date();
     if (date.includes('小时前')) {
-        return parseFloat(date.replace('小时前', ''))
+        const hoursAgo = parseFloat(date.replace('小时前', ''));
+        return now - hoursAgo * 3600 * 1000; // Convert hours to milliseconds
     }
-    else {
-        date = date.split('-').map(part => {
-            if (part.length === 1) {
-                return '0' + part;
-            } else {
-                return part;
-            }
-        }).join('-');
-        return parseFloat(date.replace('-', ''))
+    if (date === "昨天") {
+        return now - 24 * 3600 * 1000; // 24 hours in milliseconds
+    }
+    if (date.includes('-')) {
+        const parts = date.split('-').map(part => {
+            return part.padStart(2, '0');
+        });
+        // If only month and day are given, use the current year.
+        if (parts.length === 2) {
+            parts.unshift(now.getFullYear().toString());
+        }
+        // Create a new Date object and return its time value in milliseconds
+        return new Date(parts.join('-')).getTime();
     }
 }
 /////// DataTable 的排序算法 ////////
 ///////////////////////////////////
 
-console.log("JS script BiliBili-SearchList (BiliBili-搜索列表) loaded. See more details at https://github.com/SynRGB/BiliBili-SearchList");
+console.log("JS script BiliBili-TextSearchList (BiliBili-文字搜索列表) loaded. See more details at https://github.com/SynRGB/BiliBili-TextSearchList");
