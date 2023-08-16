@@ -2,7 +2,7 @@
 // @name                BiliBili-TextSearchList
 // @name:zh-CN          BiliBili-文字搜索列表
 // @namespace           https://github.com/Mehver
-// @version             bata
+// @version             1.0
 // @description         (Thanks to ZEP's paid customization) Display Bilibili search results in a text list, which is convenient for sorting by each column.
 // @description:zh-CN   (感谢闲鱼买家ZEP的有偿定制) 用文字列表的方式展示B站搜索结果，方便按各列排序。
 // @sponsor             ZEP
@@ -23,13 +23,13 @@
 // @resource            DataTablesCSS https://cdn.datatables.net/1.11.3/css/jquery.dataTables.min.css
 // ==/UserScript==
 
-let table_font_size = await GM_getValue('table_font_size', 16);
+let table_font_size = GM_getValue('table_font_size', 16);
 
 GM_registerMenuCommand('设置表格字体大小', async () => {
     let newFontSize = prompt('请输入新的字体大小（单位px）:', table_font_size);
     if (newFontSize) {
         table_font_size = newFontSize;
-        await GM_setValue('table_font_size', table_font_size);
+        GM_setValue('table_font_size', table_font_size);
         alert('字体大小已更新！请刷新页面以查看更改。');
     }
 });
