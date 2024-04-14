@@ -2,7 +2,7 @@
 > 感谢闲鱼买家ZEP的有偿定制！
 
 > [!WARNING]
-> 因定制，自 `2023 年 8 月 16 日` 发布后归档，不长期维护。 请注意，随着网站可能的更新，会存在兼容性问题。
+> 因定制，自 `2023 年 8 月 16 日` 发布后归档，不长期维护。请注意，随着网站的更新，可能会存在兼容性问题。
 
 <div align="center">
     <img src="https://github.com/SynRGB/BiliBili-TextSearchList/raw/main/%23README/icon/256.png" width="20%"/>
